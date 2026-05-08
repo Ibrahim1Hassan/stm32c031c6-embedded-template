@@ -1,0 +1,52 @@
+# Keil uVision Build Output
+dbg/
+Debug/
+Release/
+Objects/
+Listings/
+RTE/
+
+# Build artifacts
+*.axf
+*.bin
+*.elf
+*.hex
+*.d
+*.crf
+*.htm
+*.lnp
+*.map
+*.lst
+*.o
+*.obj
+*.dep
+*.build_log.htm
+
+# Keil user-specific files (contains user paths and window positions)
+*.uvguix.*
+*.uvgui.*
+
+# Backup files
+*.bak
+*._ia
+*.__i
+*._ii
+
+# Debug configuration (auto-generated)
+DebugConfig/
+
+# Flash download files
+*.tra
+
+# Project user option files (may contain user-specific settings)
+# Uncomment the line below if you want to exclude .uvoptx
+# *.uvoptx
+
+# Keep these files
+!*.c
+!*.h
+!*.s
+!*.uvprojx
+!*.sct
+EventRecorderStub.scvd
+lesson.uvoptx

@@ -22,4 +22,10 @@ void BSP_ledBlueOff(void);
 void BSP_ledGreenOn(void);
 void BSP_ledGreenOff(void);
 
+void BSP_ledGreenInit(void);
+void BSP_buttonInitB1(void);
+void uart2_init(void);
+void Uart2_SendChar(uint8_t c);
+
+
 #endif // __BSP_H__

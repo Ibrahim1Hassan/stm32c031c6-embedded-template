@@ -1,5 +1,6 @@
 #include <stdint.h> // C99 standard integers
 #include "bsp.h"
+#include <stdio.h>  /* for printf */
 
 int main(void) {
     BSP_init();
@@ -19,6 +20,7 @@ int main(void) {
             case OFF_STATE:
                 if ((BSP_tickCtr() - start) > BSP_TICKS_PER_SEC * 3U / 4U) {
                     BSP_ledGreenOn();
+										printf("LED Green ON\n");
                     start = BSP_tickCtr();
                     state = ON_STATE; /* state transition */
                 }
@@ -26,6 +28,7 @@ int main(void) {
             case ON_STATE:
                 if ((BSP_tickCtr() - start) > BSP_TICKS_PER_SEC / 4U) {
                     BSP_ledGreenOff();
+										printf("LED Green OFF\n");
                     start = BSP_tickCtr();
                     state = OFF_STATE; /* state transition */
                 }

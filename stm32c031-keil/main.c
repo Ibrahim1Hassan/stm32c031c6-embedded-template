@@ -1,24 +1,6 @@
 #include <stdint.h> // C99 standard integers
 #include "bsp.h"
-//#define BLOCKING_MAIN_VERSION     //Comment this to use the non-blocking version
 
-#ifdef BLOCKING_MAIN_VERSION
-/* background code: sequential with blocking version */
-int main(void) {
-    BSP_init();
-    while (1) {
-        BSP_ledGreenOn();
-        BSP_delay(BSP_TICKS_PER_SEC / 4U);
-        BSP_ledGreenOff();
-        BSP_delay(BSP_TICKS_PER_SEC * 3U / 4U);
-    }
-
-    //return 0;
-}
-#endif
-
-#ifndef BLOCKING_MAIN_VERSION
-/* background code: non-blocking version */
 int main(void) {
     BSP_init();
     while (1) {
@@ -55,4 +37,4 @@ int main(void) {
     }
     //return 0;
 }
-#endif
+

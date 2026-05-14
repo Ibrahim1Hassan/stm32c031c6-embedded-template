@@ -196,7 +196,7 @@ void Uart_Dma_printf (uint8_t *string) {
                 wait_counter++;
         }
         // clear TC flag for DMA channel 1
-				DMA1->IFCR |= DMA_IFCR_CTCIF1;
+				DMA1->IFCR = DMA_IFCR_CGIF1;
         // deactivate the channel by resetting EN bit in CCRx register  
         DMA1_Channel1->CCR &= ~DMA_CCR_EN;
         

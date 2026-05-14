@@ -26,6 +26,6 @@ void BSP_ledGreenInit(void);
 void BSP_buttonInitB1(void);
 void uart2_init(void);
 void Uart2_SendChar(uint8_t c);
-
+void Uart_Dma_printf (uint8_t *string, uint8_t BufferSize);
 
 #endif // __BSP_H__

@@ -20,6 +20,9 @@
 
 static uint32_t volatile l_tickCtr;
 
+/* buffer for uart_dma printf */
+static volatile uint8_t UartDmaTransmitBuffer[50];
+
 /* ISRs  ===============================================*/
 void SysTick_Handler(void) {
     ++l_tickCtr;
@@ -146,24 +149,70 @@ void uart2_init(void) {
 		USART2->CR1 &= ~USART_CR1_M0;
 		USART2->CR1 &= ~USART_CR1_M1;	//this makes 1 start bit, 8 data bits and N stop bit
 		USART2->CR1 &= ~USART_CR1_OVER8;	//makes oversampling by 16
-		USART2->CR1 |= USART_CR1_TE;
+		//USART2->CR1 |= USART_CR1_TE;
 		
 		// configure CR2 for number of stop bits and ..etc
 		USART2->CR2 &= ~USART_CR2_STOP_0;
 		USART2->CR2 &= ~USART_CR2_STOP_1;
 		
-		// configure CR3 for no hardware flow control ..etc
-		
-		// enable UART2 after configuration is done
+		// enable UART2 
 		USART2->CR1 |= USART_CR1_UE;
 		
-		// enable TE transmission enable register
+		// select DMA enable DMAT in CR3
+		USART2->CR3 |= USART_CR3_DMAT;
+		
+		/********** DMA CONFIGURATION START	**********/
+		
+		// enable DMA1 clock
+		RCC->AHBENR |= RCC_AHBENR_DMA1EN;
+		
+		// Map USART2_TX (Request 53) to DMA1 Channel1 using DMAMUX1 Channel0
+		DMAMUX1_Channel0->CCR = (53U & DMAMUX_CxCR_DMAREQ_ID);
+
+		// set the peripheral address in the DMA_CPARx register
+		DMA1_Channel1->CPAR = (uint32_t)&USART2->TDR;
+		// set the memory address in the DMA_CMARx register
+		DMA1_Channel1->CMAR = (uint32_t)&UartDmaTransmitBuffer;
+		// configure total number of bytes to transfare --> NOT HERE
+		
+		// configure channel priority, data transfare direction
+		// circular mode disabled, memory increment mode enabled, peripheral increment mode disabled
+		// peripheral and memory data size, interrupts disabled
+		DMA1_Channel1->CCR = 0;
+		DMA1_Channel1->CCR |= DMA_CCR_MINC;
+		DMA1_Channel1->CCR |= DMA_CCR_DIR;
+		// activate the channel by setting EN bit in CCRx register --> NOT HERE  DMA1_Channel1->CCR |= DMA_CCR_EN;
+		
+		
+		/********** DMA CONFIGURATION END	**********/
+		
+		// enable TE transmission enable register, sets an idle frame as first transmission
 		USART2->CR1 |= USART_CR1_TE;
 }
-
+void Uart_Dma_printf (uint8_t *string, uint8_t BufferSize) {
+		while (!( USART2->ISR & USART_ISR_TXE_TXFNF ) & !(USART2->ISR & USART_ISR_TC)) 
+		{ 
+		 /* DO NOTHING */		/* wait for Transmit Data Register Empty/TXFIFO Not Full & Transmission Complete*/
+		}
+		// deactivate the channel by resetting EN bit in CCRx register  
+		DMA1_Channel1->CCR &= ~DMA_CCR_EN;
+		// sets the data 
+	  for (uint8_t i = 0; i < BufferSize; i++) {
+        UartDmaTransmitBuffer[i] = string[i];
+    }
+		// configure buffer size
+		DMA1_Channel1->CNDTR = BufferSize;
+		// clear TC
+		USART2->ICR |= USART_ICR_TCCF;
+		// activate the channel by setting EN bit in CCRx register  
+		DMA1_Channel1->CCR |= DMA_CCR_EN;
+}
 void Uart2_SendChar(uint8_t c) {
-		while (!( USART2->ISR & USART_ISR_TXE_TXFNF )){ /* wait for Tx buffer empty */ }
-		USART2->TDR = (c & USART_TDR_TDR);
+//		while (!( USART2->ISR & USART_ISR_TXE_TXFNF ) & !(USART2->ISR & USART_ISR_TC)) 
+//		{ 
+//		 /* DO NOTHING */		/* wait for Transmit Data Register Empty/TXFIFO Not Full & Transmission Complete*/
+//		}
+//		USART2->TDR = (c & USART_TDR_TDR);
 }
 
 int fputc(int c, FILE *stream){

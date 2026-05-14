@@ -21,6 +21,7 @@ int main(void) {
                 if ((BSP_tickCtr() - start) > BSP_TICKS_PER_SEC * 3U / 4U) {
                     BSP_ledGreenOn();
 										printf("LED Green ON\n");
+										Uart_Dma_printf ("Hellloo\n\r", 10u);
                     start = BSP_tickCtr();
                     state = ON_STATE; /* state transition */
                 }

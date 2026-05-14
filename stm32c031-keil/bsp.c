@@ -189,7 +189,7 @@ void uart2_init(void) {
 		// enable TE transmission enable register, sets an idle frame as first transmission
 		USART2->CR1 |= USART_CR1_TE;
 }
-void Uart_Dma_printf (uint8_t *string) {
+void Uart_Dma_printf (char *string) {
         while (!( USART2->ISR & USART_ISR_TXE_TXFNF ) && !(USART2->ISR & USART_ISR_TC) && !(DMA1->ISR & DMA_ISR_TCIF1)) 
         {
                 static uint32_t wait_counter;	// counter for debugging

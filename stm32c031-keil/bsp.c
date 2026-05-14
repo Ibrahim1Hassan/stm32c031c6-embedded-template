@@ -190,7 +190,6 @@ void uart2_init(void) {
 		USART2->CR1 |= USART_CR1_TE;
 }
 void Uart_Dma_printf (char *string) {
-				__disable_irq();
         //    Wait until the UART TC flag is set 
         //    AND Wait if CNDTR > 0 DMA still has bytes to send.
         while ( !(USART2->ISR & USART_ISR_TC) || (DMA1_Channel1->CNDTR > 0)) 
@@ -218,7 +217,6 @@ void Uart_Dma_printf (char *string) {
         
         // activate the channel by setting EN bit in CCRx register  
         DMA1_Channel1->CCR |= DMA_CCR_EN;
-				__enable_irq();
 }
 void Uart2_SendChar(uint8_t c) {
 //		while (!( USART2->ISR & USART_ISR_TXE_TXFNF ) & !(USART2->ISR & USART_ISR_TC)) 

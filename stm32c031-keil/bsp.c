@@ -190,12 +190,13 @@ void uart2_init(void) {
 		USART2->CR1 |= USART_CR1_TE;
 }
 void Uart_Dma_printf (uint8_t *string) {
-        while (!( USART2->ISR & USART_ISR_TXE_TXFNF ) & !(USART2->ISR & USART_ISR_TC)) 
+        while (!( USART2->ISR & USART_ISR_TXE_TXFNF ) && !(USART2->ISR & USART_ISR_TC) && !(DMA1->ISR & DMA_ISR_TCIF1)) 
         {
-                static uint8_t wait_counter;	// counter for debugging
+                static uint32_t wait_counter;	// counter for debugging
                 wait_counter++;
         }
-        
+        // clear TC flag for DMA channel 1
+				DMA1->IFCR |= DMA_IFCR_CTCIF1;
         // deactivate the channel by resetting EN bit in CCRx register  
         DMA1_Channel1->CCR &= ~DMA_CCR_EN;
         

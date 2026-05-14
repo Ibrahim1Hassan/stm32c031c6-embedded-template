@@ -189,23 +189,31 @@ void uart2_init(void) {
 		// enable TE transmission enable register, sets an idle frame as first transmission
 		USART2->CR1 |= USART_CR1_TE;
 }
-void Uart_Dma_printf (uint8_t *string, uint8_t BufferSize) {
-		while (!( USART2->ISR & USART_ISR_TXE_TXFNF ) & !(USART2->ISR & USART_ISR_TC)) 
-		{ 
-		 /* DO NOTHING */		/* wait for Transmit Data Register Empty/TXFIFO Not Full & Transmission Complete*/
-		}
-		// deactivate the channel by resetting EN bit in CCRx register  
-		DMA1_Channel1->CCR &= ~DMA_CCR_EN;
-		// sets the data 
-	  for (uint8_t i = 0; i < BufferSize; i++) {
-        UartDmaTransmitBuffer[i] = string[i];
+void Uart_Dma_printf (uint8_t *string) {
+        while (!( USART2->ISR & USART_ISR_TXE_TXFNF ) & !(USART2->ISR & USART_ISR_TC)) 
+        {
+                static uint8_t wait_counter;	// counter for debugging
+                wait_counter++;
+        }
+        
+        // deactivate the channel by resetting EN bit in CCRx register  
+        DMA1_Channel1->CCR &= ~DMA_CCR_EN;
+        
+        // Calculate string size and copy data simultaneously
+        uint8_t bufferSize = 0;
+        while (string[bufferSize] != '\0' && bufferSize < sizeof(UartDmaTransmitBuffer)) {
+        UartDmaTransmitBuffer[bufferSize] = string[bufferSize];
+        bufferSize++;
     }
-		// configure buffer size
-		DMA1_Channel1->CNDTR = BufferSize;
-		// clear TC
-		USART2->ICR |= USART_ICR_TCCF;
-		// activate the channel by setting EN bit in CCRx register  
-		DMA1_Channel1->CCR |= DMA_CCR_EN;
+        
+        // configure buffer size
+        DMA1_Channel1->CNDTR = bufferSize;
+        
+        // clear TC
+        USART2->ICR |= USART_ICR_TCCF;
+        
+        // activate the channel by setting EN bit in CCRx register  
+        DMA1_Channel1->CCR |= DMA_CCR_EN;
 }
 void Uart2_SendChar(uint8_t c) {
 //		while (!( USART2->ISR & USART_ISR_TXE_TXFNF ) & !(USART2->ISR & USART_ISR_TC)) 
@@ -227,7 +235,7 @@ int fputc(int c, FILE *stream){
 void EXTI4_15_IRQHandler(void){
 	// Clear the pending flag
   EXTI->FPR1 |= EXTI_FPR1_FPIF13;
-	printf("Button Pressed\n");
+	Uart_Dma_printf("Button Pressed\n\r");
 	/* counter for ISR */
 	static uint16_t button_int_ctr;
 	button_int_ctr++;

@@ -20,8 +20,8 @@ int main(void) {
             case OFF_STATE:
                 if ((BSP_tickCtr() - start) > BSP_TICKS_PER_SEC * 3U / 4U) {
                     BSP_ledGreenOn();
-										printf("LED Green ON\n");
-										Uart_Dma_printf ("Hellloo\n\r", 10u);
+										Uart_Dma_printf("LED Green ON\n\r");
+										Uart_Dma_printf ("Hellloo\n\r");
                     start = BSP_tickCtr();
                     state = ON_STATE; /* state transition */
                 }
@@ -29,7 +29,7 @@ int main(void) {
             case ON_STATE:
                 if ((BSP_tickCtr() - start) > BSP_TICKS_PER_SEC / 4U) {
                     BSP_ledGreenOff();
-										printf("LED Green OFF\n");
+										Uart_Dma_printf("LED Green OFF\n\r");
                     start = BSP_tickCtr();
                     state = OFF_STATE; /* state transition */
                 }

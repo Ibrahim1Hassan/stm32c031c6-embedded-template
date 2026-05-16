@@ -18,14 +18,23 @@
 // Button pins available on the board (just one user Button B1 on PC.13)
 #define B1_PIN   13U
 
+
 static uint32_t volatile l_tickCtr;
+volatile event_t event_signal = NONE;
 
 /* buffer for uart_dma printf */
 static volatile uint8_t UartDmaTransmitBuffer[50];
 
 /* ISRs  ===============================================*/
 void SysTick_Handler(void) {
-    ++l_tickCtr;
+    static uint32_t start =0;
+		++l_tickCtr;
+		if ((l_tickCtr - start) > BSP_TICKS_PER_SEC * 3U / 4U) 
+		{
+				start = l_tickCtr;
+				event_signal = TIMER; /* timer signal */
+    }
+		
 }
 
 /* BSP functions ===========================================================*/
@@ -161,6 +170,9 @@ void uart2_init(void) {
 		// select DMA enable DMAT in CR3
 		USART2->CR3 |= USART_CR3_DMAT;
 		
+		// set RE to enable the receiver which begins searching for a start bit
+		USART2->CR1 |= USART_CR1_RE;
+		
 		/********** DMA CONFIGURATION START	**********/
 		
 		// enable DMA1 clock
@@ -236,13 +248,15 @@ int fputc(int c, FILE *stream){
 }
 
 void EXTI4_15_IRQHandler(void){
+	__disable_irq();
 	// Clear the pending flag
   EXTI->FPR1 |= EXTI_FPR1_FPIF13;
-	Uart_Dma_printf("Button Pressed\n\r");
+	/* send BUTTON signal */
+	event_signal = BUTTON;
 	/* counter for ISR */
 	static uint16_t button_int_ctr;
 	button_int_ctr++;
-	
+	__enable_irq();
 }
 
 //............................................................................

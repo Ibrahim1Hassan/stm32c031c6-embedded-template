@@ -5,6 +5,21 @@
 /* system clock tick [Hz] */
 #define BSP_TICKS_PER_SEC 100U
 
+typedef enum {
+				INITIAL,
+				TIMER_EVENT,
+				UART_EVENT,
+				BUTTON_EVENT,
+				IDLE
+     } state_t;
+
+typedef enum {
+				TIMER,
+				UART,
+				BUTTON,
+				NONE
+     } event_t;
+
 void BSP_init(void);
 
 /* get the current value of the clock tick counter (returns immedately) */

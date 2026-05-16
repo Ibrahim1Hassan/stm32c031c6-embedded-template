@@ -21,7 +21,7 @@
 
 static uint32_t volatile l_tickCtr;
 volatile event_t event_signal = NONE;
-
+volatile char global_char;
 /* buffer for uart_dma printf */
 static volatile uint8_t UartDmaTransmitBuffer[50];
 
@@ -278,5 +278,10 @@ _Noreturn void assert_failed(char const * const module, int const id) {
 void USART2_IRQHandler(void);
 void USART2_IRQHandler(void)
 {
+		while (( USART2->ISR & USART_ISR_RXNE_RXFNE )) 
+			{ 
+				global_char = USART2->RDR;
+			}
+		event_signal = UART;
 	
 }

@@ -4,8 +4,9 @@
 #include <stdbool.h>
 #include "stm32c0xx.h"  // CMSIS-compliant header file for the MCU used
 extern volatile event_t event_signal;
+extern volatile char global_char;
 volatile static state_t main_state = INITIAL;
-
+static char string[] = "Received Char --> [x}\n\r";
 static void clear_event_signal (void);
 static void clear_event_signal (void)
 {
@@ -43,7 +44,8 @@ int main(void) {
                 break;
 								
 						case UART_EVENT:			 /* Handle UART Event */
-								
+								string[19] = global_char;
+								Uart_Dma_printf(string);
                 main_state = IDLE; /* reset state machine to idle */
                 break;		
 						

@@ -158,8 +158,10 @@ void uart2_init(void) {
 		USART2->CR1 &= ~USART_CR1_M0;
 		USART2->CR1 &= ~USART_CR1_M1;	//this makes 1 start bit, 8 data bits and N stop bit
 		USART2->CR1 &= ~USART_CR1_OVER8;	//makes oversampling by 16
-		//USART2->CR1 |= USART_CR1_TE;
-		
+		// enable USART interrupt generation whenever ORE= 1 or RXNE =1 in the USART_ISR register
+		USART2->CR1 |= USART_CR1_RXNEIE_RXFNEIE;	// RXNE/RXFIFO not empty Interrupt Enable
+		// enable USART2 IRQ
+		NVIC_EnableIRQ(USART2_IRQn);
 		// configure CR2 for number of stop bits and ..etc
 		USART2->CR2 &= ~USART_CR2_STOP_0;
 		USART2->CR2 &= ~USART_CR2_STOP_1;
@@ -271,4 +273,10 @@ _Noreturn void assert_failed(char const * const module, int const id) {
     }
 #endif
     NVIC_SystemReset();
+}
+
+void USART2_IRQHandler(void);
+void USART2_IRQHandler(void)
+{
+	
 }

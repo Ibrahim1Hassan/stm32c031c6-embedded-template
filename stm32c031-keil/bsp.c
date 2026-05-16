@@ -283,5 +283,7 @@ void USART2_IRQHandler(void)
 				global_char = USART2->RDR;
 			}
 		event_signal = UART;
+		/* clear Overrun Event */
+		USART2->ICR |= USART_ICR_ORECF;
 	
 }

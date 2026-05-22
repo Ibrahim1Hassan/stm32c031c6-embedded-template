@@ -10,12 +10,14 @@ typedef enum {
 				TIMER_EVENT,
 				UART_EVENT,
 				BUTTON_EVENT,
+				UART_ERROR_EVENT,
 				IDLE
      } state_t;
 
 typedef enum {
 				TIMER,
 				UART,
+				UART_BUFFER_OVERFLOW,
 				BUTTON,
 				NONE
      } event_t;

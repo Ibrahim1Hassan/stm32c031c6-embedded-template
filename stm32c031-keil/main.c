@@ -6,7 +6,7 @@
 extern volatile event_t event_signal;
 extern volatile char global_char;
 volatile static state_t main_state = INITIAL;
-static char string[] = "Received Char --> [x}\n\r";
+char input_string[53] = "Received Input --> ";
 static void clear_event_signal (void);
 static void clear_event_signal (void)
 {
@@ -32,7 +32,6 @@ int main(void) {
 									BSP_ledGreenOn();
 									led_state = 1u;
 									Uart_Dma_printf("LED Green ON\n\r");
-									Uart_Dma_printf ("Hellloo\n\r");
 								}
 								else 
 								{
@@ -44,10 +43,14 @@ int main(void) {
                 break;
 								
 						case UART_EVENT:			 /* Handle UART Event */
-								string[19] = global_char;
-								Uart_Dma_printf(string);
+								Uart_Dma_printf(input_string);
                 main_state = IDLE; /* reset state machine to idle */
-                break;		
+                break;
+						
+						case UART_ERROR_EVENT:			 /* Handle UART Event */
+								Uart_Dma_printf("Please Enter a maximum of 30 characters\n\r");
+                main_state = IDLE; /* reset state machine to idle */
+                break;
 						
 						case BUTTON_EVENT:		 /* Handle BUTTON Event */
 								Uart_Dma_printf("Button Pressed\n\r");
@@ -59,6 +62,11 @@ int main(void) {
 								{
 									clear_event_signal();
 									main_state = UART_EVENT;
+								}
+								else if (event_signal == UART_BUFFER_OVERFLOW)
+								{
+									clear_event_signal();
+									main_state = UART_ERROR_EVENT;
 								}
 								else if (event_signal == TIMER)
 								{

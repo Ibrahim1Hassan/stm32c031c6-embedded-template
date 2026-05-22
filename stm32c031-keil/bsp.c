@@ -24,6 +24,7 @@ volatile event_t event_signal = NONE;
 volatile char global_char;
 /* buffer for uart_dma printf */
 static volatile uint8_t UartDmaTransmitBuffer[50];
+extern volatile char input_string[50];
 
 /* ISRs  ===============================================*/
 void SysTick_Handler(void) {
@@ -175,7 +176,7 @@ void uart2_init(void) {
 		// set RE to enable the receiver which begins searching for a start bit
 		USART2->CR1 |= USART_CR1_RE;
 		
-		/********** DMA CONFIGURATION START	**********/
+		/********** DMA Tx CONFIGURATION START	**********/
 		
 		// enable DMA1 clock
 		RCC->AHBENR |= RCC_AHBENR_DMA1EN;
@@ -198,7 +199,8 @@ void uart2_init(void) {
 		// activate the channel by setting EN bit in CCRx register --> NOT HERE  DMA1_Channel1->CCR |= DMA_CCR_EN;
 		
 		
-		/********** DMA CONFIGURATION END	**********/
+		/********** DMA Tx CONFIGURATION END	**********/
+		
 		
 		// enable TE transmission enable register, sets an idle frame as first transmission
 		USART2->CR1 |= USART_CR1_TE;
@@ -279,10 +281,27 @@ void USART2_IRQHandler(void);
 void USART2_IRQHandler(void)
 {
 		while (( USART2->ISR & USART_ISR_RXNE_RXFNE )) 
-			{ 
-				global_char = USART2->RDR;
+			{ static uint8_t string_index = 19;
+				input_string[string_index] = USART2->RDR;
+				if (input_string[string_index] == '\r')
+				{
+					input_string[string_index] = '\n';
+					input_string[string_index + 1u] = '\r';
+					input_string[string_index + 2u] = '\0';
+					string_index = 19;
+					event_signal = UART;
+				}
+				else
+				{
+					string_index++;
+					if (string_index == 49)
+					{
+						event_signal = UART_BUFFER_OVERFLOW;
+						string_index = 19;
+					}
+					
+				}
 			}
-		event_signal = UART;
 		/* clear Overrun Event */
 		USART2->ICR |= USART_ICR_ORECF;
 	

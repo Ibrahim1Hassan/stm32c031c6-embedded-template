@@ -50,3 +50,7 @@ DebugConfig/
 !*.sct
 EventRecorderStub.scvd
 lesson.uvoptx
+
+
+# Doxygen Generated Output
+docs/output/
